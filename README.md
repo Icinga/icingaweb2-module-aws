@@ -1,16 +1,40 @@
 AWS module for Icinga Web 2
 ===========================
 
-This is a simple AWS module. Currently it is nothing but a import source
-provider for Icinga Director. You need to extract the AWS PHP SDK v2 to
-`library/vendor/aws` and at least one AWS access key in `keys.ini`. Create
-a file `/etc/icingaweb2/modules/aws/keys.ini` as follows:
+This is a simple AWS module. Currently it is nothing but an import source
+provider for [Icinga Director](https://github.com/Icinga/icingaweb2-module-director).
+
+Requirements
+------------
+
+This module needs the [AWS PHP SDK v2](http://docs.aws.amazon.com/aws-sdk-php/v2/guide/).
+The newer v3 requires PHP 5.5, a version not available without 3rd party
+(or SCL) repositories on many Enterprise Linux distributions as of this
+writing. So to make life easier for many people we decided to work with
+the older SDK.
+
+Installation
+------------
+
+Please extract or clone this module to your Icinga Web 2 module path. The
+directory name must fit the module name, `aws`. This would usually lead to
+`/usr/share/icingaweb2/modules/aws`.
+
+Next please download and extract the [latest v2](https://github.com/aws/aws-sdk-php/releases/download/2.8.30/aws.zip) standalone ZIP archive from
+the AWS PHP SDK [releases](https://github.com/aws/aws-sdk-php/releases) page.
+You need to extract the AWS PHP SDK v2 to `library/vendor/aws`.
+
+The last required step is to provide at least one AWS access key in `keys.ini`.
+Create a file `/etc/icingaweb2/modules/aws/keys.ini` as follows:
 
 ```ini
 [My readonly AWS key]
 access_key_id = RANDOMANFASDFNASDOFA
 secret_access_key = WhatASDmn0asdnfASNDInafsdofdasJ980hansdf
 ```
+
+That's it. Now you are ready to enable the AWS module and you'll find a new
+Import Source in your Icinga Director frontend.
 
 Proxy usage
 -----------
