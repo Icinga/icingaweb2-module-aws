@@ -4,6 +4,7 @@ namespace Icinga\Module\Aws;
 
 use Aws\AutoScaling\AutoScalingClient;
 use Aws\Common\Aws;
+use Icinga\Application\Config;
 
 class AwsClient
 {
@@ -80,10 +81,19 @@ class AwsClient
 
     protected function initializeClient()
     {
-        $this->client = Aws::factory([
+        $params = array(
             'region'  => $this->region,
             'credentials' => $this->key->getCredentials(),
-        ]);
+        );
+
+        $config = Config::module('aws');
+        if ($proxy = $config->get('network', 'proxy')) {
+            $params['request.options'] = array(
+                'proxy' => $proxy
+            );
+        }
+
+        $this->client = Aws::factory($params);
     }
 
     protected function prepareAwsLibs()
