@@ -93,6 +93,10 @@ class AwsClient
             );
         }
 
+        if ($ca = $config->get('network', 'ssl_ca')) {
+            $params['ssl.certificate_authority'] = $ca;
+        }
+
         $this->client = Aws::factory($params);
     }
 

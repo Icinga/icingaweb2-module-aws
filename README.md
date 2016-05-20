@@ -43,9 +43,20 @@ In case your server needs to use a proxy when connection to the AWS web service
 please create `/etc/icingaweb2/modules/aws/config.ini` with a `network` section
 like shown in this example:
 
-```
+```ini
 [network]
 proxy = "192.0.2.192:3128"
 ```
 
 You could also pass proxy credentials in the form `user:pass@host:port`.
+
+SSL issues
+----------
+
+In case you need to provide a specific SSL CA bundle, once again please create
+a `[network]` section in your `config.ini`:
+
+```ini
+[network]
+ssl_ca = "/etc/ssl/certs/ca.pem"
+```
