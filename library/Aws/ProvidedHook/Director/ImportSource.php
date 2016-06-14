@@ -58,6 +58,10 @@ class ImportSource extends ImportSourceHook
         $form->addElement('select', 'aws_access_key', array(
             'label'        => 'AWS access key',
             'required'     => true,
+            'description'  => $form->translate(
+                'Your AWS key, this shows all keys from your keys.ini. Please'
+                . ' check the documentation in case this list is empty'
+            ),
             'multiOptions' => $form->optionalEnum(AwsKey::enumKeyNames()),
             'class'        => 'autosubmit',
         ));
