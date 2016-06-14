@@ -1,0 +1,5 @@
+Name: AWS
+Version: 0.0.1
+Depends: monitoring
+Description: Amazon Web Services module for Icinga Web 2
+ This module provides an AWS SDK import source for Icinga Director
