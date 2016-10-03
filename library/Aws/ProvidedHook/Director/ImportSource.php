@@ -19,27 +19,81 @@ class ImportSource extends ImportSourceHook
             $this->getSetting('aws_region')
         );
 
-        return $client->getAutoscalingConfig();
+        switch ($this->getObjectType()) {
+            case 'asg':
+                return $client->getAutoscalingConfig();
+            case 'lb':
+                return $client->getLoadBalancers();
+            case 'ec2instance':
+                return $client->getEc2Instances();
+        }
+    }
+
+    protected function getObjectType()
+    {
+        // Compat for old configs, asg used to be the only available type:
+        $type = $this->getSetting('object_type', 'asg');
+        if (! in_array($type, array('asg', 'lb', 'ec2instance'))) {
+            throw new ConfigurationError(
+                'Got no invalid AWS object type: "%s"',
+                $type
+            );
+        }
+
+        return $type;
     }
 
     public function listColumns()
     {
-        return array(
-            'name',
-            'launch_config',
-            'ctime',
-            'zones',
-            'desired_size',
-            'min_size',
-            'max_size',
-            'lb_names',
-            'health_check_type',
-            'tags',
-            'tags.Name',
-            'tags.aws:cloudformation:logical-id',
-            'tags.aws:cloudformation:stack-id',
-            'tags.aws:cloudformation:stack-name',
-        );
+        switch ($this->getObjectType()) {
+            case 'asg':
+                return array(
+                    'name',
+                    'launch_config',
+                    'ctime',
+                    'zones',
+                    'desired_size',
+                    'min_size',
+                    'max_size',
+                    'lb_names',
+                    'health_check_type',
+                    'tags',
+                    'tags.Name',
+                    'tags.aws:cloudformation:logical-id',
+                    'tags.aws:cloudformation:stack-id',
+                    'tags.aws:cloudformation:stack-name',
+                );
+            case 'lb':
+                return array(
+                    'name',
+                    'dnsname',
+                    'scheme',
+                    'zones',
+                    'listeners',
+                    'health_check',
+                );
+            case 'ec2instance':
+                return array(
+                    'name',
+                    'image',
+                    'architecture',
+                    'root_device_type',
+                    'root_device_name',
+                    'hypervisor',
+                    'virt_type',
+                    'public_ip',
+                    'public_dns',
+                    'private_ip',
+                    'private_dns',
+                    'monitoring_state',
+                    'tags',
+                    'tags.Name',
+                    'tags.aws:autoscaling:groupName',
+                    'tags.aws:cloudformation:logical-id',
+                    'tags.aws:cloudformation:stack-id',
+                    'tags.aws:cloudformation:stack-name',
+                );
+        }
     }
 
     public static function getDefaultKeyColumnName()
@@ -65,5 +119,26 @@ class ImportSource extends ImportSourceHook
             'multiOptions' => $form->optionalEnum(AwsKey::enumKeyNames()),
             'class'        => 'autosubmit',
         ));
+
+        $form->addElement('select', 'object_type', array(
+            'label'        => 'Object type',
+            'required'     => true,
+            'description'  => $form->translate(
+                'AWS object type'
+            ),
+            'multiOptions' => $form->optionalEnum(
+                static::enumObjectTypes($form)
+            ),
+            'class'        => 'autosubmit',
+        ));
+    }
+
+    protected static function enumObjectTypes($form)
+    {
+        return array(
+            'asg'         => $form->translate('Auto Scaling Groups'),
+            'lb'          => $form->translate('Elastic Load Balancers'),
+            'ec2instance' => $form->translate('EC2 Instances'),
+        );
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Icinga\Module\Aws;
 
-use Aws\AutoScaling\AutoScalingClient;
 use Aws\Common\Aws;
 use Icinga\Application\Config;
 
@@ -23,35 +22,93 @@ class AwsClient
 
     public function getAutoscalingConfig()
     {
-        $groups = array();
+        $objects = array();
+        $client = $this->client()->get('AutoScaling');
+        $res = $client->describeAutoScalingGroups();
 
-        $lbClient = $this->client()->get('AutoScaling');
-        $res = $lbClient->describeAutoScalingGroups();
-        foreach ($res->get('AutoScalingGroups') as $grp) {
+        foreach ($res->get('AutoScalingGroups') as $entry) {
 
-            $group = (object) array(
-                'name'              => $grp['AutoScalingGroupName'],
-                'launch_config'     => $grp['LaunchConfigurationName'],
-                'ctime'             => strtotime($grp['CreatedTime']),
-                'zones'             => $grp['AvailabilityZones'],
-                // 'current_size'      => count($grp['Instances']),
-                'desired_size'      => (int) $grp['DesiredCapacity'],
-                'min_size'          => (int) $grp['MinSize'],
-                'max_size'          => (int) $grp['MaxSize'],
-                // 'instances'         => $grp['Instances'],
-                'lb_names'          => $grp['LoadBalancerNames'],
-                'health_check_type' => $grp['HealthCheckType'],
-                'tags'              => (object) array(),
-            );
+            $objects[] = $object = $this->extractAttributes($entry, array(
+                'name'              => 'AutoScalingGroupName',
+                'launch_config'     => 'LaunchConfigurationName',
+                'zones'             => 'AvailabilityZones',
+                'lb_names'          => 'LoadBalancerNames',
+                'health_check_type' => 'HealthCheckType',
+            ));
 
-
-            foreach ($grp['Tags'] as $t) {
-                $group->tags->{$t['Key']} = $t['Value'];
-            }
-            $groups[] = $group;
+            $object->ctime        = strtotime($entry['CreatedTime']);
+            $object->desired_size = (int) $entry['DesiredCapacity'];
+            $object->min_size     = (int) $entry['MinSize'];
+            $object->max_size     = (int) $entry['MaxSize'];
+            $this->extractTags($entry, $object);
         }
 
-        return $groups;
+        return $this->sortByName($objects);
+    }
+
+    public function getLoadBalancers()
+    {
+        $client = $this->client()->get('ElasticLoadBalancing');
+        $res = $client->describeLoadBalancers();
+        $objects = array();
+        foreach ($res->get('LoadBalancerDescriptions') as $entry) {
+            $objects[] = $object = $this->extractAttributes($entry, array(
+                'name'    => 'LoadBalancerName',
+                'dnsname' => 'DNSName',
+                'scheme'  => 'Scheme',
+                'zones'   => 'AvailabilityZones',
+            ));
+
+            $object->health_check = $entry['HealthCheck']['Target'];
+
+            $object->listeners = (object) array();
+            foreach ($entry['ListenerDescriptions'] as $l) {
+                $listener = $l['Listener'];
+                $object->listeners->{$listener['LoadBalancerPort']} = $this->extractAttributes(
+                    $listener,
+                    array(
+                        'port'              => 'LoadBalancerPort',
+                        'protocol'          => 'Protocol',
+                        'instance_port'     => 'InstancePort',
+                        'instance_protocol' => 'InstanceProtocol',
+                    )
+                );
+            }
+        }
+
+        return $this->sortByName($objects);
+    }
+
+    public function getEc2Instances()
+    {
+        $client = $this->client()->get('Ec2');
+        $res = $client->describeInstances();
+        $objects = array();
+        foreach ($res->get('Reservations') as $reservation) {
+
+            foreach ($reservation['Instances'] as $entry) {
+                $objects[] = $object = $this->extractAttributes($entry, array(
+                    'name'             => 'InstanceId',
+                    'image'            => 'ImageId',
+                    'architecture'     => 'Architecture',
+                    'root_device_type' => 'RootDeviceType',
+                    'root_device_name' => 'RootDeviceName',
+                    'hypervisor'       => 'Hypervisor',
+                    'virt_type'        => 'VirtualizationType',
+                ), array(
+                    'public_ip'    => 'PublicIpAddress',
+                    'public_dns'   => 'PublicDnsName',
+                    'private_ip'       => 'PrivateIpAddress',
+                    'private_dns'      => 'PrivateDnsName',
+                ));
+
+                $object->monitoring_state = $entry['Monitoring']['State'];
+
+                $this->extractTags($entry, $object);
+            }
+        }
+
+        return $this->sortByName($objects);
     }
 
     public static function enumRegions()
@@ -68,6 +125,47 @@ class AwsClient
             'ap-northeast-2' => 'Asia Pacific (Seoul)',
             'sa-east-1'      => 'South America (São Paulo)',
         );
+    }
+
+    protected function sortByName($objects)
+    {
+        usort($objects, array($this, 'compareName'));
+        return $objects;
+    }
+
+    protected function extractAttributes($entry, $required, $optional = array(), $subkey = null)
+    {
+        $result = (object) array();
+        if ($subkey !== null) {
+            $entry = $entry[$subkey];
+        }
+
+        foreach ($required as $alias => $key) {
+            $result->$alias = $entry[$key];
+        }
+
+        foreach ($optional as $alias => $key) {
+            if (array_key_exists($key, $entry)) {
+                $result->$alias = $entry[$key];
+            } else {
+                $result->$alias = null;
+            }
+        }
+
+        return $result;
+    }
+
+    protected function extractTags($entry, $result)
+    {
+        $result->tags = (object) array();
+        foreach ($entry['Tags'] as $t) {
+            $result->tags->{$t['Key']} = $t['Value'];
+        }
+    }
+
+    protected function compareName($a, $b)
+    {
+        return strcmp($a->name, $b->name);
     }
 
     protected function client()
