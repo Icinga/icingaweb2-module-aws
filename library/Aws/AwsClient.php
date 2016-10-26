@@ -91,13 +91,13 @@ class AwsClient
                     'name'             => 'InstanceId',
                     'image'            => 'ImageId',
                     'architecture'     => 'Architecture',
-                    'root_device_type' => 'RootDeviceType',
-                    'root_device_name' => 'RootDeviceName',
                     'hypervisor'       => 'Hypervisor',
                     'virt_type'        => 'VirtualizationType',
                 ), array(
-                    'public_ip'    => 'PublicIpAddress',
-                    'public_dns'   => 'PublicDnsName',
+                    'root_device_type' => 'RootDeviceType',
+                    'root_device_name' => 'RootDeviceName',
+                    'public_ip'        => 'PublicIpAddress',
+                    'public_dns'       => 'PublicDnsName',
                     'private_ip'       => 'PrivateIpAddress',
                     'private_dns'      => 'PrivateDnsName',
                 ));
@@ -158,6 +158,10 @@ class AwsClient
     protected function extractTags($entry, $result)
     {
         $result->tags = (object) array();
+        if (! array_key_exists('Tags', $entry)) {
+            return;
+        }
+
         foreach ($entry['Tags'] as $t) {
             $result->tags->{$t['Key']} = $t['Value'];
         }
