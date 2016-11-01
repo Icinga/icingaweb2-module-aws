@@ -94,6 +94,7 @@ class AwsClient
                     'hypervisor'       => 'Hypervisor',
                     'virt_type'        => 'VirtualizationType',
                 ), array(
+                    'vpc_id'           => 'VpcId',
                     'root_device_type' => 'RootDeviceType',
                     'root_device_name' => 'RootDeviceName',
                     'public_ip'        => 'PublicIpAddress',

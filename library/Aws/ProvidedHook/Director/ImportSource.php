@@ -81,6 +81,7 @@ class ImportSource extends ImportSourceHook
                     'root_device_name',
                     'hypervisor',
                     'virt_type',
+                    'vpc_id',
                     'public_ip',
                     'public_dns',
                     'private_ip',
