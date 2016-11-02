@@ -86,6 +86,7 @@ class ImportSource extends ImportSourceHook
                     'public_dns',
                     'private_ip',
                     'private_dns',
+                    'state',
                     'monitoring_state',
                     'tags',
                     'tags.Name',

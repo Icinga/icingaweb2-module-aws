@@ -102,7 +102,7 @@ class AwsClient
                     'private_ip'       => 'PrivateIpAddress',
                     'private_dns'      => 'PrivateDnsName',
                 ));
-
+                $object->state = $entry['State']['Name'];
                 $object->monitoring_state = $entry['Monitoring']['State'];
 
                 $this->extractTags($entry, $object);
