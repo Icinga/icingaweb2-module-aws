@@ -94,6 +94,7 @@ class AwsClient
                     'hypervisor'       => 'Hypervisor',
                     'virt_type'        => 'VirtualizationType',
                 ), array(
+                    'vpc_id'           => 'VpcId',
                     'root_device_type' => 'RootDeviceType',
                     'root_device_name' => 'RootDeviceName',
                     'public_ip'        => 'PublicIpAddress',
@@ -101,7 +102,7 @@ class AwsClient
                     'private_ip'       => 'PrivateIpAddress',
                     'private_dns'      => 'PrivateDnsName',
                 ));
-
+                $object->state = $entry['State']['Name'];
                 $object->monitoring_state = $entry['Monitoring']['State'];
 
                 $this->extractTags($entry, $object);
