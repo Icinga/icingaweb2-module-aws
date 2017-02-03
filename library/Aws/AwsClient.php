@@ -105,9 +105,9 @@ class AwsClient
                 // no point in monitoring nodes that are not in ready state
                 // make sure sync rule maps disabled column to disabled property
                 if ($entry['State']['Name'] == 'running') {
-                    $object->disabled = 0;
+                    $object->disabled = FALSE;
                 } else {
-                    $object->disabled = 1;
+                    $object->disabled = TRUE;
                 }
 
                 $object->monitoring_state = $entry['Monitoring']['State'];
