@@ -102,7 +102,14 @@ class AwsClient
                     'private_ip'       => 'PrivateIpAddress',
                     'private_dns'      => 'PrivateDnsName',
                 ));
-                $object->state = $entry['State']['Name'];
+                // no point in monitoring nodes that are not in ready state
+                // make sure sync rule maps disabled column to disabled property
+                if ($entry['State']['Name'] == 'running') {
+                    $object->disabled = 0
+                } else {
+                    $object->disabled = 1
+                }
+
                 $object->monitoring_state = $entry['Monitoring']['State'];
 
                 $this->extractTags($entry, $object);
