@@ -165,6 +165,9 @@ class AwsClient
 
         foreach ($entry['Tags'] as $t) {
             $result->tags->{$t['Key']} = $t['Value'];
+            // so we can use these tags in the expected way in import filters via tags.attribute
+            $result->{'tags.'.$t['Key']} = $t['Value'];
+
         }
     }
 
