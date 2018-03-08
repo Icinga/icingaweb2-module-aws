@@ -104,6 +104,7 @@ class AwsClient
                 ));
 
                 $object->monitoring_state = $entry['Monitoring']['State'];
+                $object->status           = $entry['State']['Name'];
                 $object->security_groups  = [];
 
                 foreach ($entry['SecurityGroups'] as $group)
