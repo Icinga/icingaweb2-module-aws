@@ -100,9 +100,16 @@ class AwsClient
                     'public_dns'       => 'PublicDnsName',
                     'private_ip'       => 'PrivateIpAddress',
                     'private_dns'      => 'PrivateDnsName',
+                    'instance_type'    => 'InstanceType',
                 ));
 
                 $object->monitoring_state = $entry['Monitoring']['State'];
+                $object->security_groups  = [];
+
+                foreach ($entry['SecurityGroups'] as $group)
+                {
+                    $object->security_groups[] = $group['GroupName'];
+                }
 
                 $this->extractTags($entry, $object);
             }
