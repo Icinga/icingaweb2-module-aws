@@ -12,6 +12,13 @@ your service that they are alive.
 This example wants to teach you how to configure Director to automagically do
 this for you.
 
+### Create IAM User
+
+We suggest creating a new user for Icinga2. In order to use all features of this
+module, assign the following policy to the user:
+
+arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
+
 ### Create a new host template
 
 I'd strongly suggest to create a dedicated template that should be inherited
@@ -79,4 +86,3 @@ to Icinga:
 ![AWS host preview](img/09_aws_host_preview.png)
 
 That's all for now, have fun!
-
