@@ -93,8 +93,6 @@ class AwsClient
                     'architecture'     => 'Architecture',
                     'hypervisor'       => 'Hypervisor',
                     'virt_type'        => 'VirtualizationType',
-                    'vpc'              => 'VpcId',
-                    'subnet'           => 'SubnetId',
                     'launchtime'       => 'LaunchTime',
                 ), array(
                     'root_device_type' => 'RootDeviceType',
@@ -111,6 +109,20 @@ class AwsClient
 
                 if (array_key_exists('Platform', $entry)) {
                     $object->platform = $entry['Platform'];
+                }
+                else {
+                    $object->platform = 'empty';
+                }
+
+                if (array_key_exists('VpcId', $entry)) {
+                    $object->platform = $entry['VpcId'];
+                }
+                else {
+                    $object->platform = 'empty';
+                }
+
+                if (array_key_exists('SubnetId', $entry)) {
+                    $object->platform = $entry['SubnetId'];
                 }
                 else {
                     $object->platform = 'empty';
