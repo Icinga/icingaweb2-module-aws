@@ -115,17 +115,17 @@ class AwsClient
                 }
 
                 if (array_key_exists('VpcId', $entry)) {
-                    $object->platform = $entry['VpcId'];
+                    $object->vpc = $entry['VpcId'];
                 }
                 else {
-                    $object->platform = 'empty';
+                    $object->vpc = 'empty';
                 }
 
                 if (array_key_exists('SubnetId', $entry)) {
-                    $object->platform = $entry['SubnetId'];
+                    $object->subnet = $entry['SubnetId'];
                 }
                 else {
-                    $object->platform = 'empty';
+                    $object->subnet = 'empty';
                 }
 
                 foreach ($entry['SecurityGroups'] as $group)
