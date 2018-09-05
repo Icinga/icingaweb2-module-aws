@@ -93,6 +93,9 @@ class AwsClient
                     'architecture'     => 'Architecture',
                     'hypervisor'       => 'Hypervisor',
                     'virt_type'        => 'VirtualizationType',
+                    'vpc'              => 'VpcId',
+                    'subnet'           => 'SubnetId',
+                    'launchtime'       => 'LaunchTime',
                 ), array(
                     'root_device_type' => 'RootDeviceType',
                     'root_device_name' => 'RootDeviceName',
@@ -105,6 +108,13 @@ class AwsClient
 
                 $object->monitoring_state = $entry['Monitoring']['State'];
                 $object->security_groups  = [];
+
+                if (array_key_exists('Platform', $entry)) {
+                    $object->platform = $entry['Platform'];
+                }
+                else {
+                    $object->platform = 'empty';
+                }
 
                 foreach ($entry['SecurityGroups'] as $group)
                 {
