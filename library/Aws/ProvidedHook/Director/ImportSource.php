@@ -26,6 +26,8 @@ class ImportSource extends ImportSourceHook
                 return $client->getLoadBalancers();
             case 'ec2instance':
                 return $client->getEc2Instances();
+            case 'rdsinstance':
+                return $client->getRdsInstances();
         }
     }
 
@@ -33,7 +35,7 @@ class ImportSource extends ImportSourceHook
     {
         // Compat for old configs, asg used to be the only available type:
         $type = $this->getSetting('object_type', 'asg');
-        if (! in_array($type, array('asg', 'lb', 'ec2instance'))) {
+        if (! in_array($type, array('asg', 'lb', 'ec2instance', 'rdsinstance'))) {
             throw new ConfigurationError(
                 'Got no invalid AWS object type: "%s"',
                 $type
@@ -71,6 +73,15 @@ class ImportSource extends ImportSourceHook
                     'zones',
                     'listeners',
                     'health_check',
+                );
+            case 'rdsinstance':
+                return array(
+                    'name',
+                    'port',
+                    'fqdn',
+                    'engine',
+                    'version',
+                    'security_groups',
                 );
             case 'ec2instance':
                 return array(
@@ -141,6 +152,7 @@ class ImportSource extends ImportSourceHook
             'asg'         => $form->translate('Auto Scaling Groups'),
             'lb'          => $form->translate('Elastic Load Balancers'),
             'ec2instance' => $form->translate('EC2 Instances'),
+            'rdsinstance' => $form->translate('RDS Instances'),
         );
     }
 }
