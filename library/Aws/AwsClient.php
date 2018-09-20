@@ -118,6 +118,33 @@ class AwsClient
         return $this->sortByName($objects);
     }
 
+    public function getRdsInstances()
+    {
+        $client = $this->client()->get('Rds');
+        $res = $client->describeDBInstances();
+        $objects = array();
+        foreach ($res['DBInstances'] as $entry) {
+            $objects[] = $object = $this->extractAttributes($entry, array(
+                'name'    => 'DBInstanceIdentifier',
+                'engine'  => 'Engine',
+                'version' => 'EngineVersion',
+            ));
+
+            $object->port = $entry['Endpoint']['Port'];
+            $object->fqdn = $entry['Endpoint']['Address'];
+            $object->security_groups  = [];
+
+            foreach ($entry['VpcSecurityGroups'] as $group)
+            {
+                $object->security_groups[] = $group['VpcSecurityGroupId'];
+            }
+
+            $this->extractTags($entry, $object);
+        }
+
+        return $this->sortByName($objects);
+    }
+
     public static function enumRegions()
     {
         return array(
