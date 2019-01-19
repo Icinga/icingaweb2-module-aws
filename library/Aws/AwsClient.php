@@ -118,6 +118,77 @@ class AwsClient
         return $this->sortByName($objects);
     }
 
+    public function getAsgInstances($filter_key, $filter_value)
+    {
+        $objects = array();
+        $instances = array();
+        $client = $this->client()->get('AutoScaling');
+        $res = $client->describeAutoScalingGroups();
+
+        if (!empty($filter_key AND !empty($filter_value))) {
+            foreach ($res->get('AutoScalingGroups') as $entry) {
+                foreach ($entry['Tags'] as $tag) {
+                    if ($tag['Key']==$filter_key AND $tag['Value'] == $filter_value) {
+                        if (!empty($entry['Instances'])) {
+                            foreach ($entry['Instances'] as $instance) {
+                                if ($instance['LifecycleState'] == 'InService') {
+                                    array_push($instances, $instance['InstanceId']);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else {
+            foreach ($res->get('AutoScalingGroups') as $entry) {
+                if (!empty($entry['Instances'])) {
+                    foreach ($entry['Instances'] as $instance) {
+                        if ($instance['LifecycleState'] == 'InService') {
+                            array_push($instances, $instance['InstanceId']);
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (!empty($instances)) {
+            $client = $this->client()->get('Ec2');
+            $res = $client->describeInstances(array('InstanceIds' => $instances));
+            foreach ($res->get('Reservations') as $reservation) {
+    
+                foreach ($reservation['Instances'] as $entry) {
+                    $objects[] = $object = $this->extractAttributes($entry, array(
+                        'name'             => 'InstanceId',
+                        'image'            => 'ImageId',
+                        'architecture'     => 'Architecture',
+                        'hypervisor'       => 'Hypervisor',
+                        'virt_type'        => 'VirtualizationType',
+                    ), array(
+                        'root_device_type' => 'RootDeviceType',
+                        'root_device_name' => 'RootDeviceName',
+                        'public_ip'        => 'PublicIpAddress',
+                        'public_dns'       => 'PublicDnsName',
+                        'private_ip'       => 'PrivateIpAddress',
+                        'private_dns'      => 'PrivateDnsName',
+                        'instance_type'    => 'InstanceType',
+                    ));
+    
+                    $object->monitoring_state = $entry['Monitoring']['State'];
+                    $object->security_groups  = [];
+    
+                    foreach ($entry['SecurityGroups'] as $group)
+                    {
+                        $object->security_groups[] = $group['GroupName'];
+                    }
+    
+                    $this->extractTags($entry, $object);
+                }
+            }
+        }
+        return $this->sortByName($objects);
+    }
+
     public function getRdsInstances()
     {
         $client = $this->client()->get('Rds');

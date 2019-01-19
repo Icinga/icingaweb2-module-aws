@@ -24,6 +24,8 @@ class ImportSource extends ImportSourceHook
                 return $client->getAutoscalingConfig();
             case 'lb':
                 return $client->getLoadBalancers();
+            case 'asginstance':
+                return $client->getAsgInstances('filter_key', 'filter_value');
             case 'ec2instance':
                 return $client->getEc2Instances();
             case 'rdsinstance':
@@ -35,7 +37,7 @@ class ImportSource extends ImportSourceHook
     {
         // Compat for old configs, asg used to be the only available type:
         $type = $this->getSetting('object_type', 'asg');
-        if (! in_array($type, array('asg', 'lb', 'ec2instance', 'rdsinstance'))) {
+        if (! in_array($type, array('asg', 'lb', 'asginstance', 'ec2instance', 'rdsinstance'))) {
             throw new ConfigurationError(
                 'Got no invalid AWS object type: "%s"',
                 $type
@@ -106,6 +108,29 @@ class ImportSource extends ImportSourceHook
                     'tags.aws:cloudformation:stack-id',
                     'tags.aws:cloudformation:stack-name',
                 );
+            case 'asginstance':
+            return array(
+                'name',
+                'image',
+                'architecture',
+                'root_device_type',
+                'root_device_name',
+                'hypervisor',
+                'instance_type',
+                'virt_type',
+                'public_ip',
+                'public_dns',
+                'private_ip',
+                'private_dns',
+                'monitoring_state',
+                'security_groups',
+                'tags',
+                'tags.Name',
+                'tags.aws:autoscaling:groupName',
+                'tags.aws:cloudformation:logical-id',
+                'tags.aws:cloudformation:stack-id',
+                'tags.aws:cloudformation:stack-name',
+            );
         }
     }
 
@@ -144,6 +169,27 @@ class ImportSource extends ImportSourceHook
             ),
             'class'        => 'autosubmit',
         ));
+
+        if (($object_type = $form->getSentOrObjectSetting('object_type'))=='asginstance') {
+            $form->addElement('text', 'filter_key', array(
+                'label'        => 'Filter Key',
+                'required'     => false,
+                'description'  => $form->translate(
+                    'If you want to filter the Auto Scaling Groups by a Tag. Specify the Tag´s Key to filter by.'
+                ),
+                'class'        => 'autosubmit',
+            ));
+    
+            $form->addElement('text', 'filter_value', array(
+                'label'        => 'Filter Value',
+                'required'     => false,
+                'description'  => $form->translate(
+                    'If you want to filter the Auto Scaling Groups by a Tag. Specify the Tag´s Value of the Key to filter by.'
+                ),
+                'class'        => 'autosubmit',
+            ));    
+        }
+
     }
 
     protected static function enumObjectTypes($form)
@@ -152,6 +198,7 @@ class ImportSource extends ImportSourceHook
             'asg'         => $form->translate('Auto Scaling Groups'),
             'lb'          => $form->translate('Elastic Load Balancers'),
             'ec2instance' => $form->translate('EC2 Instances'),
+            'asginstance' => $form->translate('Auto Scaled EC2 Instances'),
             'rdsinstance' => $form->translate('RDS Instances'),
         );
     }
