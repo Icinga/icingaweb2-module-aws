@@ -189,6 +189,10 @@ class PropertyModifier extends PropertyModifierHook
         $ddTableName = 'EC2-Scheduler';
         $stackName = 'foo';
 
+        if (isset($this->ec2SchedulerSettings[$stackName])) {
+            return $this->ec2SchedulerSettings[$stackName];
+        }
+
         $dynamoDb = $this->Client()->getDynamoDb();
         $res = $dynamoDb->getItem([
             'TableName' => $ddTableName,
