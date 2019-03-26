@@ -312,7 +312,7 @@ class PropertyModifier extends PropertyModifierHook
                             $period['begintime'] ?: '00:00',
                             $period['endtime'] ?: '24:00',
                             $schedule['timezone'] ?: 'UTC',
-                            $period['weekdays'] // TODO: Hyphen delimited range definitions possible!
+                            $this->resolveRangeDefinitions($period['weekdays']) // TODO: Hyphen delimited range definitions possible!
                         ]);
                         $schedule = $this->parse($parsablePeriod);
                         if (! empty($schedule)) {
@@ -324,6 +324,36 @@ class PropertyModifier extends PropertyModifierHook
         }
 
         return $schedules;
+    }
+
+    protected function resolveRangeDefinitions($def)
+    {
+        $stringified = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+
+        $toString = function ($v) use($stringified) { return ctype_digit($v) ? $stringified[$v] : $v; };
+        $toInt = function ($v) use ($stringified) { return ctype_digit($v) ? $v : array_search($v, $stringified); };
+
+        $days = [];
+        foreach (explode(',', $def) as $dayOrRange) {
+            if (ctype_digit($def)) {
+                $days[] = $toString($def);
+            } elseif (strpos($def, '-') !== false) {
+                list($start, $end) = explode('-', $def, 2);
+                $start = $toInt($start);
+                $end = $toInt($end);
+                if ($end < $start) {
+                    continue;
+                }
+
+                for ($i = $start; $i <= $end; $i++) {
+                    $days[] = $toString($i);
+                }
+            } else {
+                $days[] = $dayOrRange;
+            }
+        }
+
+        return join(',', $days);
     }
 
     /**
