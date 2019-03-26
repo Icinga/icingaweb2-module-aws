@@ -517,7 +517,7 @@ class PropertyModifier extends PropertyModifierHook
                 $nextStart = $schedules[0][0];
             }
 
-            $diff = diff($stopOn, $nextStart);
+            $diff = $this->diff($stopOn, $nextStart);
             if ($diff->d > 0) {
                 $hourDelta = 24 - $stopOn['tm_hour'];
 
