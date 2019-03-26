@@ -29,12 +29,16 @@ class PropertyModifier extends PropertyModifierHook
 
     protected $instanceSchedulerConfig;
 
-    public function __construct()
+    protected function Client()
     {
-        $this->client = new AwsClient(
-            AwsKey::loadByName($this->getSetting('aws_access_key')),
-            $this->getSetting('aws_region')
-        );
+        if ($this->client === null) {
+            $this->client = new AwsClient(
+                AwsKey::loadByName($this->getSetting('aws_access_key')),
+                $this->getSetting('aws_region')
+            );
+        }
+
+        return $this->client;
     }
 
     public function getName()
@@ -185,7 +189,7 @@ class PropertyModifier extends PropertyModifierHook
         $ddTableName = 'EC2-Scheduler';
         $stackName = 'foo';
 
-        $dynamoDb = $this->client->getDynamoDb();
+        $dynamoDb = $this->Client()->getDynamoDb();
         $res = $dynamoDb->getItem([
             'TableName' => $ddTableName,
             'Key'       => [
@@ -204,7 +208,7 @@ class PropertyModifier extends PropertyModifierHook
         }
 
         $tableName = $this->getSetting('aws_instance_scheduler_table');
-        $dynamoDb = $this->client->getDynamoDb();
+        $dynamoDb = $this->Client()->getDynamoDb();
 
         $res = $dynamoDb->getItem([
             'ConsistentRead'    => true,
