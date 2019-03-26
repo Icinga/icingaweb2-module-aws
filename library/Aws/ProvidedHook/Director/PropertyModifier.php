@@ -548,13 +548,13 @@ class PropertyModifier extends PropertyModifierHook
 
             while ($diff->d > 1) {
                 $currentDay = $currentDay < 6 ? $currentDay + 1: 0;
-                $ranges[self::ICINGA_DAYS[$currentDay]][] = renderRange(0, 0, 24, 0);
+                $ranges[self::ICINGA_DAYS[$currentDay]][] = $this->renderRange(0, 0, 24, 0);
 
                 --$diff->d;
             }
 
             $currentDay = $currentDay < 6 ? $currentDay + 1: 0;
-            $ranges[self::ICINGA_DAYS[$currentDay]][] = renderRange(0, 0, 24 + $diff->h, $diff->i);
+            $ranges[self::ICINGA_DAYS[$currentDay]][] = $this->renderRange(0, 0, 24 + $diff->h, $diff->i);
         }
 
         return $ranges;
