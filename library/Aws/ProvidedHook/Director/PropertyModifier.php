@@ -25,7 +25,9 @@ class PropertyModifier extends PropertyModifierHook
 
     protected $client;
 
-    protected $dynamoSettings;
+    protected $ec2SchedulerSettings;
+
+    protected $instanceSchedulerConfig;
 
     public function __construct()
     {
@@ -55,25 +57,15 @@ class PropertyModifier extends PropertyModifierHook
             throw new InvalidPropertyException('The AWS property modifier only supports the tags property');
         }
 
-        $customTagName = 'scheduler:ec2-startstop';
-        $customTagLength = 23;
-        if (isset($this->DynamoSettings()['CustomTagName'])) {
-            $customTagName = $this->DynamoSettings()['CustomTagName'];
-            $customTagLength = strlen($customTagName);
-        }
-
-        $schedules = [];
-        foreach ($value as $tagKey => $tagValue) {
-            if (empty($tagValue) || $tagValue === 'none') {
-                continue;
-            }
-
-            if (substr($tagKey, 0, $customTagLength) === $customTagName) {
-                $schedule = $this->parse($tagValue);
-                if (! empty($schedule)) {
-                    $schedules = array_merge($schedules, $schedule);
-                }
-            }
+        switch ($this->getSetting('aws_solution')) {
+            case 'ec2_scheduler':
+                $schedules = $this->parseLegacySchedules($value);
+                break;
+            case 'aws_instance_scheduler':
+                $schedules = $this->parseAwsSchedules($value);
+                break;
+            default:
+                throw new LogicException('Unknown solution');
         }
 
         if (empty($schedules)) {
@@ -133,6 +125,32 @@ class PropertyModifier extends PropertyModifierHook
 
         $form->addElement(
             'select',
+            'aws_solution',
+            [
+                'label'         => 'AWS Solution',
+                'class'         => 'autosubmit',
+                'required'      => true,
+                'multiOptions'  => [
+                    'aws_instance_scheduler'    => 'AWS Instance Scheduler',
+                    'ec2_scheduler'             => 'EC2 Scheduler'
+                ]
+            ]
+        );
+
+        $chosenSolution = $form->getSentValue('aws_solution') ?: 'aws_instance_scheduler';
+        if ($chosenSolution === 'aws_instance_scheduler') {
+            $form->addElement(
+                'text',
+                'aws_instance_scheduler_table',
+                [
+                    'required'  => true,
+                    'label'     => 'Table Name'
+                ]
+            );
+        }
+
+        $form->addElement(
+            'select',
             'range_type',
             [
                 'required'      => true,
@@ -147,11 +165,11 @@ class PropertyModifier extends PropertyModifierHook
         return $form;
     }
 
-    protected function DynamoSettings()
+    protected function Ec2SchedulerSettings()
     {
         $stackName = $this->getRow()->stack_name;
-        if (isset($this->dynamoSettings[$stackName])) {
-            return $this->dynamoSettings[$stackName];
+        if (isset($this->ec2SchedulerSettings[$stackName])) {
+            return $this->ec2SchedulerSettings[$stackName];
         }
 
         $stack = $this->client->getStacks()[$stackName];
@@ -172,23 +190,154 @@ class PropertyModifier extends PropertyModifierHook
             ]
         ]);
 
-        $this->dynamoSettings[$stackName] = $res['Item'];
-        return $this->dynamoSettings[$stackName];
+        $this->ec2SchedulerSettings[$stackName] = $res['Item'];
+        return $this->ec2SchedulerSettings[$stackName];
+    }
+
+    protected function InstanceSchedulerConfig()
+    {
+        if ($this->instanceSchedulerConfig !== null) {
+            return $this->instanceSchedulerConfig;
+        }
+
+        $tableName = $this->getSetting('aws_instance_scheduler_table');
+        $dynamoDb = $this->client->getDynamoDb();
+
+        $res = $dynamoDb->getItem([
+            'ConsistentRead'    => true,
+            'TableName'         => $tableName,
+            'Key'               => [
+                'name'  => 'scheduler',
+                'type'  => 'config'
+            ]
+        ]);
+        $config = $res['Item'];
+
+        $periods = $dynamoDb->getIterator('Query', [
+            'TableName'     => $tableName,
+            'KeyConditions' => [
+                'type'  => [
+                    'ComparisonOperator'    => 'EQ',
+                    'AttributeValueList'    => [
+                        ['S' => 'period']
+                    ]
+                ]
+            ]
+        ]);
+        foreach ($periods as $period) {
+            $config['periods'][$period['name']] = $period;
+        }
+
+        $schedules = $dynamoDb->getIterator('Query', [
+            'TableName'     => $tableName,
+            'KeyConditions' => [
+                'type'  => [
+                    'ComparisonOperator'    => 'EQ',
+                    'AttributeValueList'    => [
+                        ['S' => 'schedule']
+                    ]
+                ]
+            ]
+        ]);
+        foreach ($schedules as $schedule) {
+            $config['schedules'][$schedule['name']] = $schedule;
+        }
+
+        return $this->instanceSchedulerConfig = $config;
+    }
+
+    /**
+     * Parse legacy (EC2 Scheduler) schedules
+     *
+     * @param   array|object  $tags
+     *
+     * @return  array
+     */
+    protected function parseLegacySchedules($tags)
+    {
+        $customTagName = 'scheduler:ec2-startstop';
+        $customTagLength = 23;
+        if (isset($this->Ec2SchedulerSettings()['CustomTagName'])) {
+            $customTagName = $this->Ec2SchedulerSettings()['CustomTagName'];
+            $customTagLength = strlen($customTagName);
+        }
+
+        $schedules = [];
+        foreach ($tags as $tagKey => $tagValue) {
+            if (empty($tagValue) || $tagValue === 'none') {
+                continue;
+            }
+
+            if (substr($tagKey, 0, $customTagLength) === $customTagName) {
+                $schedule = $this->parse(
+                    $tagValue,
+                    $this->Ec2SchedulerSettings()['DefaultStartTime'],
+                    $this->Ec2SchedulerSettings()['DefaultStopTime'],
+                    $this->Ec2SchedulerSettings()['DefaultDaysActive']
+                );
+                if (! empty($schedule)) {
+                    $schedules = array_merge($schedules, $schedule);
+                }
+            }
+        }
+
+        return $schedules;
+    }
+
+    /**
+     * Parse instance scheduler tags
+     *
+     * @param   array|object  $tags
+     *
+     * @return  array
+     */
+    protected function parseAwsSchedules($tags)
+    {
+        $config = $this->InstanceSchedulerConfig();
+
+        $customTagName = 'Schedule';
+        if (isset($config['tagname'])) {
+            $customTagName = $config['tagname'];
+        }
+
+        $schedules = [];
+        foreach ($tags as $tagKey => $tagValue) {
+            if (! empty($tagValue) && $tagKey === $customTagName && isset($config['schedules'][$tagValue])) {
+                $schedule = $config['schedules'][$tagValue];
+                foreach ($schedule['periods'] as $periodName) {
+                    // TODO: <period-name>@<instance-type>
+                    if (isset($config['periods'][$periodName])) {
+                        $period = $config['periods'][$periodName];
+                        $parsablePeriod = join(';', [
+                            $period['begintime'] ?: '00:00',
+                            $period['endtime'] ?: '24:00',
+                            $schedule['timezone'] ?: 'UTC',
+                            $period['weekdays'] // TODO: Hyphen delimited range definitions possible!
+                        ]);
+                        $schedule = $this->parse($parsablePeriod);
+                        if (! empty($schedule)) {
+                            $schedules = array_merge($schedules, $schedule);
+                        }
+                    }
+                }
+            }
+        }
+
+        return $schedules;
     }
 
     /**
      * Parse the given scheduler tag into a schedule
      *
      * @param   string  $value
+     * @param   string  $start
+     * @param   string  $stop
+     * @param   string  $weekdays
      *
      * @return  null|array
      */
-    protected function parse($value)
+    protected function parse($value, $start = null, $stop = null, $weekdays = null)
     {
-        $start = $this->DynamoSettings()['DefaultStartTime'];
-        $stop = $this->DynamoSettings()['DefaultStopTime'];
-        $weekdays = $this->DynamoSettings()['DefaultDaysActive'];
-
         if (in_array(strtolower($value), ['true', 'default'], true)) {
             $value = $start;
         }
@@ -199,6 +348,7 @@ class PropertyModifier extends PropertyModifierHook
                 $weekdays = array_pop($parts);
             case 3:
                 // timezone is UTC only
+                // TODO: not anymore for aws instance scheduler schedules
                 $_ = array_pop($parts);
             case 2:
                 $stop = array_pop($parts);
