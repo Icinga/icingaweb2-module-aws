@@ -167,7 +167,7 @@ class PropertyModifier extends PropertyModifierHook
 
     protected function Ec2SchedulerSettings()
     {
-        $stackName = $this->getRow()->stack_name;
+        /*$stackName = $this->getRow()->stack_name;
         if (isset($this->ec2SchedulerSettings[$stackName])) {
             return $this->ec2SchedulerSettings[$stackName];
         }
@@ -180,7 +180,10 @@ class PropertyModifier extends PropertyModifierHook
                 $ddTableName = $outputStructure['OutputValue'];
                 break;
             }
-        }
+        }*/
+
+        $ddTableName = 'EC2-Scheduler';
+        $stackName = 'foo';
 
         $dynamoDb = $this->client->getDynamoDb();
         $res = $dynamoDb->getItem([

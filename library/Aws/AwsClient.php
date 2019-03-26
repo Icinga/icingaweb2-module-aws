@@ -162,9 +162,9 @@ class AwsClient
                     $object->stack_name = $object->tags->{'aws:cloudformation:stack-name'};
                 } else {
                     // TODO: I'm not sure this is legit, but ec2-scheduler.py does it with the same assumptions
-                    $object->stack_name = strrev(
+                    /*$object->stack_name = strrev(
                         explode('-', strrev(explode(':', $entry['IamInstanceProfile']['Arn'])[6]), 3)[2]
-                    );
+                    );*/
                 }
             }
         }
