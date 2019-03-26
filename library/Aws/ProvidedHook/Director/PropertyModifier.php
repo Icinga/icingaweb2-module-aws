@@ -535,7 +535,7 @@ class PropertyModifier extends PropertyModifierHook
             }
 
             $currentDay = $stopOn['tm_wday'];
-            $ranges[self::ICINGA_DAYS[$currentDay]][] = renderRange(
+            $ranges[self::ICINGA_DAYS[$currentDay]][] = $this->renderRange(
                 $stopOn['tm_hour'],
                 $stopOn['tm_min'],
                 $stopOn['tm_hour'] + $hourDelta,
