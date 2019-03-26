@@ -197,7 +197,7 @@ class PropertyModifier extends PropertyModifierHook
         $res = $dynamoDb->getItem([
             'TableName' => $ddTableName,
             'Key'       => [
-                'SolutionName'  => 'EC2Scheduler'
+                'SolutionName'  => ['S' => 'EC2Scheduler']
             ]
         ]);
 
@@ -218,8 +218,8 @@ class PropertyModifier extends PropertyModifierHook
             'ConsistentRead'    => true,
             'TableName'         => $tableName,
             'Key'               => [
-                'name'  => 'scheduler',
-                'type'  => 'config'
+                'name'  => ['S' => 'scheduler'],
+                'type'  => ['S' => 'config']
             ]
         ]);
         $config = $res['Item'];
@@ -323,7 +323,7 @@ class PropertyModifier extends PropertyModifierHook
                             $period['begintime'] ?: '00:00',
                             $period['endtime'] ?: '24:00',
                             $schedule['timezone'] ?: 'UTC',
-                            $this->resolveRangeDefinitions($period['weekdays']) // TODO: Hyphen delimited range definitions possible!
+                            $this->resolveRangeDefinitions($period['weekdays'])
                         ]);
                         $schedule = $this->parse($parsablePeriod);
                         if (! empty($schedule)) {
