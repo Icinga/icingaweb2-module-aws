@@ -268,8 +268,8 @@ class PropertyModifier extends PropertyModifierHook
     {
         $customTagName = 'scheduler:ec2-startstop';
         $customTagLength = 23;
-        if (isset($this->Ec2SchedulerSettings()['CustomTagName'])) {
-            $customTagName = $this->Ec2SchedulerSettings()['CustomTagName'];
+        if (isset($this->Ec2SchedulerSettings()['CustomTagName']['S'])) {
+            $customTagName = $this->Ec2SchedulerSettings()['CustomTagName']['S'];
             $customTagLength = strlen($customTagName);
         }
 
@@ -282,9 +282,9 @@ class PropertyModifier extends PropertyModifierHook
             if (substr($tagKey, 0, $customTagLength) === $customTagName) {
                 $schedule = $this->parse(
                     $tagValue,
-                    $this->Ec2SchedulerSettings()['DefaultStartTime'],
-                    $this->Ec2SchedulerSettings()['DefaultStopTime'],
-                    $this->Ec2SchedulerSettings()['DefaultDaysActive']
+                    $this->Ec2SchedulerSettings()['DefaultStartTime']['S'],
+                    $this->Ec2SchedulerSettings()['DefaultStopTime']['S'],
+                    $this->Ec2SchedulerSettings()['DefaultDaysActive']['S']
                 );
                 if (! empty($schedule)) {
                     $schedules = array_merge($schedules, $schedule);
