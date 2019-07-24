@@ -15,7 +15,6 @@ class ImportSource extends ImportSourceHook
     public function fetchData()
     {
         $client = new AwsClient(
-            AwsKey::loadByName($this->getSetting('aws_access_key')),
             $this->getSetting('aws_region')
         );
 
@@ -120,17 +119,6 @@ class ImportSource extends ImportSourceHook
             'label'        => 'AWS region',
             'required'     => true,
             'multiOptions' => $form->optionalEnum(AwsClient::enumRegions()),
-        ));
-
-        $form->addElement('select', 'aws_access_key', array(
-            'label'        => 'AWS access key',
-            'required'     => true,
-            'description'  => $form->translate(
-                'Your AWS key, this shows all keys from your keys.ini. Please'
-                . ' check the documentation in case this list is empty'
-            ),
-            'multiOptions' => $form->optionalEnum(AwsKey::enumKeyNames()),
-            'class'        => 'autosubmit',
         ));
 
         $form->addElement('select', 'object_type', array(

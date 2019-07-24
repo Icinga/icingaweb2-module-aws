@@ -224,7 +224,6 @@ class AwsClient
     {
         $params = array(
             'region'  => $this->region,
-            'credentials' => $this->key->getCredentials(),
         );
 
         $config = Config::module('aws');
