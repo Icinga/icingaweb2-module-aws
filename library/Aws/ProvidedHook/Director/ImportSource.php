@@ -5,7 +5,6 @@ namespace Icinga\Module\Aws\ProvidedHook\Director;
 use Icinga\Module\Director\Hook\ImportSourceHook;
 use Icinga\Module\Director\Web\Form\QuickForm;
 use Icinga\Module\Aws\AwsClient;
-use Icinga\Module\Aws\AwsKey;
 use Icinga\Application\Benchmark;
 
 class ImportSource extends ImportSourceHook

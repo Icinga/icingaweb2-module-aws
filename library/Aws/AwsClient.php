@@ -7,16 +7,14 @@ use Icinga\Application\Config;
 
 class AwsClient
 {
-    protected $key;
 
     protected $client;
 
     protected $region;
 
-    public function __construct(AwsKey $key, $region)
+    public function __construct($region)
     {
         $this->region = $region;
-        $this->key = $key;
         $this->prepareAwsLibs();
     }
 
