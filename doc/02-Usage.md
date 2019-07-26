@@ -14,7 +14,7 @@ this for you.
 
 ### Create IAM User
 
-We suggest creating a new user for Icinga2. In order to use all features of this
+We suggest creating a new user IAM Instance Profile. In order to use all features of this
 module, assign the following policy to the user:
 
 arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess
