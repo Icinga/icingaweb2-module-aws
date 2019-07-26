@@ -10,38 +10,28 @@ The newer v3 requires PHP 5.5, a version not available without 3rd party
 writing. So to make life easier for many people we decided to work with
 the older SDK.
 
-Module installation
--------------------
+## Module installation
 
 Please extract or clone this module to your Icinga Web 2 module path. The
 directory name must fit the module name, `aws`. This would usually lead to
 `/usr/share/icingaweb2/modules/aws`.
 
-Download AWS SDK
-----------------
+## Download AWS SDK
 
 Next please download and extract the [latest v2](https://github.com/aws/aws-sdk-php/releases/download/2.8.30/aws.zip) standalone ZIP archive from
 the AWS PHP SDK [releases](https://github.com/aws/aws-sdk-php/releases) page.
 You need to extract the AWS PHP SDK v2 to `library/vendor/aws`.
 
-AWS key configuration
----------------------
+## AWS API Authentication
 
-The last required step is to provide at least one AWS access key in `keys.ini`.
-Create a file `/etc/icingaweb2/modules/aws/keys.ini` as follows:
-
-```ini
-[My readonly AWS key]
-access_key_id = RANDOMANFASDFNASDOFA
-secret_access_key = WhatASDmn0asdnfASNDInafsdofdasJ980hansdf
-```
+The last required step is to provide a method for the authentication. For security best practices and follow AWS recommendations, you should
+[attach a IAM Instance Profile to the AWS Instance](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html).
 
 That's it. Now you are ready to enable the AWS module and you'll find a new
 Import Source in your Icinga Director frontend. You are now ready to skip to
 the [Usage](02-Usage.md) section.
 
-Proxy usage
------------
+## Proxy usage
 
 In case your server needs to use a proxy when connection to the AWS web service
 please create `/etc/icingaweb2/modules/aws/config.ini` with a `network` section
