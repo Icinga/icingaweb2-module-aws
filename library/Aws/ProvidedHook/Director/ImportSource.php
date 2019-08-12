@@ -99,6 +99,7 @@ class ImportSource extends ImportSourceHook
                     'private_dns',
                     'monitoring_state',
                     'security_groups',
+                    'status',
                     'tags',
                     'tags.Name',
                     'tags.aws:autoscaling:groupName',
