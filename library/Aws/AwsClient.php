@@ -243,6 +243,23 @@ class AwsClient
 
     protected function prepareAwsLibs()
     {
-        require_once dirname(__DIR__) . '/vendor/aws/aws-autoloader.php';
+        if (class_exists('\Aws\Common\Aws')) {
+            return;
+        }
+
+        $autoloaderFiles = array(
+            dirname(__DIR__) . '/vendor/aws/aws-autoloader.php', // manual sdk installation
+            dirname(__DIR__) . '/vendor/autoload.php',           // composer installation
+        );
+
+        foreach ($autoloaderFiles as $file) {
+            if (file_exists($file)) {
+                require_once $file;
+            }
+        }
+
+        if (! class_exists('\Aws\Common\Aws')) {
+            throw new \RuntimeException('AWS SDK not found (Class \Aws\Common\Aws not found)');
+        }
     }
 }

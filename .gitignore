@@ -1,1 +1,2 @@
-library/vendor/aws/*
+library/vendor/*
+composer.lock
