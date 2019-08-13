@@ -1,0 +1,59 @@
+<?php
+/** @var \Icinga\Web\View $this */
+/** @var \Icinga\Module\Aws\Forms\Config\KeysListForm $form */
+?>
+<form id="<?=
+$form->getId()
+?>" name="<?=
+$form->getName()
+?>" enctype="<?=
+$form->getEncType()
+?>" method="<?=
+$form->getMethod()
+?>" action="<?=
+$form->getAction()
+?>">
+    <table class="table-row-selectable common-table" data-base-target="_next">
+        <thead>
+        <tr>
+            <th><?= $this->translate('Keys') ?></th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php
+        $keyConfig = $form->getConfig();
+        foreach ($keyConfig as $keyName => $config):
+            ?>
+            <tr>
+                <td>
+                    <?= $this->qlink(
+                        $keyName,
+                        'aws/config/editkey',
+                        array('key' => $keyName),
+                        array(
+                            'icon'  => 'edit',
+                            'title' => sprintf($this->translate('Edit key %s'), $keyName)
+                        )
+                    ); ?>
+                </td>
+                <td class="text-right">
+                    <?= $this->qlink(
+                        '',
+                        'aws/config/removekey',
+                        array('key' => $keyName),
+                        array(
+                            'class' => 'action-link',
+                            'icon'  => 'cancel',
+                            'title' => sprintf($this->translate('Remove key %s'), $keyName)
+                        )
+                    ); ?>
+                </td>
+            </tr>
+        <?php endforeach ?>
+        </tbody>
+    </table>
+    <?= $form->getElement($form->getTokenElementName()) ?>
+    <?= $form->getElement($form->getUidElementName()) ?>
+</form>
