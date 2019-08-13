@@ -59,7 +59,8 @@ class AwsKey
     public static function enumKeyNames()
     {
         $names = static::listNames();
-        return array_combine($names, $names);
+        $labels = array_map(function ($name) { return $name . ' (Key)'; }, $names);
+        return array_combine($names, $labels);
     }
 
     protected static function config()

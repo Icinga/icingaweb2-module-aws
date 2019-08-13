@@ -3,6 +3,8 @@
 namespace Icinga\Module\Aws;
 
 use Aws\Common\Aws;
+use Aws\Common\Credentials\RefreshableInstanceProfileCredentials;
+use Aws\Common\Exception\InstanceProfileCredentialsException;
 use Icinga\Application\Config;
 
 class AwsClient
@@ -13,7 +15,7 @@ class AwsClient
 
     protected $region;
 
-    public function __construct(AwsKey $key, $region)
+    public function __construct(AwsKey $key = null, $region)
     {
         $this->region = $region;
         $this->key = $key;
@@ -226,9 +228,12 @@ class AwsClient
     protected function initializeClient()
     {
         $params = array(
-            'region'  => $this->region,
-            'credentials' => $this->key->getCredentials(),
+            'region'  => $this->region
         );
+
+        if ($this->key instanceof AwsKey) {
+            $params['credentials'] = $this->key->getCredentials();
+        }
 
         $config = Config::module('aws');
         if ($proxy = $config->get('network', 'proxy')) {
