@@ -42,11 +42,12 @@ You can choose your AWS region from a dropdown:
 
 ![AWS import source region](img/03_aws_import_region.png)
 
-It is also necessary to choose one of your AWS keys:
+It is also necessary to choose your preferred access method:
 
 ![AWS import source key](img/04_aws_import_source_key.png)
 
-In case this list is empty, please check back to the [Installation and Configuration](01-Installation-and-Configuration.md)
+In case you need a key and this list is empty, please check back to the
+[Installation and Configuration](01-Installation-and-Configuration.md)
 section. Now you are ready to preview and/or run your first import. Don't
 worry, nothing bad will happen. An Import run just imports plain data from
 your import source, it won't touch any of your hosts or services in your

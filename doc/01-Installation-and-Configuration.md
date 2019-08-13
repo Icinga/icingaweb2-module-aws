@@ -24,10 +24,17 @@ Next please download and extract the [latest v2](https://github.com/aws/aws-sdk-
 the AWS PHP SDK [releases](https://github.com/aws/aws-sdk-php/releases) page.
 You need to extract the AWS PHP SDK v2 to `library/vendor/aws`.
 
+AWS IAM role credentials
+------------------------
+
+If you run Icinga Web on AWS you can use IAM roles to allow access. This is the
+default and there is nothing to configure. Select IAM role and configure access
+in AWS itself. 
+
 AWS key configuration
 ---------------------
 
-The last required step is to provide at least one AWS access key in `keys.ini`.
+If you want to use access keys you need to have at least one key in `keys.ini`.
 Create a file `/etc/icingaweb2/modules/aws/keys.ini` as follows:
 
 ```ini
