@@ -14,10 +14,14 @@ class ImportSource extends ImportSourceHook
 
     public function fetchData()
     {
-        $client = new AwsClient(
-            AwsKey::loadByName($this->getSetting('aws_access_key')),
-            $this->getSetting('aws_region')
-        );
+        $keyName = $this->getSetting('aws_access_key');
+        $key = null;
+
+        if ($keyName) {
+            $key = AwsKey::loadByName($keyName);
+        }
+
+        $client = new AwsClient($key, $this->getSetting('aws_region'));
 
         switch ($this->getObjectType()) {
             case 'asg':
@@ -125,12 +129,14 @@ class ImportSource extends ImportSourceHook
 
         $form->addElement('select', 'aws_access_key', array(
             'label'        => 'AWS access key',
-            'required'     => true,
+            'required'     => false,
             'description'  => $form->translate(
                 'Your AWS key, this shows all keys from your keys.ini. Please'
                 . ' check the documentation in case this list is empty'
             ),
-            'multiOptions' => $form->optionalEnum(AwsKey::enumKeyNames()),
+            'multiOptions' => $form->optionalEnum(AwsKey::enumKeyNames(), $form->translate(
+                'Use IAM role'
+            )),
             'class'        => 'autosubmit',
         ));
 
