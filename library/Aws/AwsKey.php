@@ -2,7 +2,7 @@
 
 namespace Icinga\Module\Aws;
 
-use Aws\Common\Credentials\Credentials;
+use Aws\Credentials\Credentials;
 use Icinga\Application\Config;
 
 class AwsKey
