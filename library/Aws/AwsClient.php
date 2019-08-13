@@ -94,6 +94,7 @@ class AwsClient
                     'hypervisor'       => 'Hypervisor',
                     'virt_type'        => 'VirtualizationType',
                 ), array(
+                    'vpc_id'           => 'VpcId',
                     'root_device_type' => 'RootDeviceType',
                     'root_device_name' => 'RootDeviceName',
                     'public_ip'        => 'PublicIpAddress',
@@ -103,6 +104,7 @@ class AwsClient
                     'instance_type'    => 'InstanceType',
                 ));
 
+                $object->disabled         = $entry['State']['Name'] != 'running';
                 $object->monitoring_state = $entry['Monitoring']['State'];
                 $object->status           = $entry['State']['Name'];
                 $object->security_groups  = [];
