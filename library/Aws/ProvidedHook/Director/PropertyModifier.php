@@ -496,6 +496,10 @@ class PropertyModifier extends PropertyModifierHook
             $ranges[self::ICINGA_DAYS[$stopOn['tm_wday']]][] = $range;
         }
 
+        foreach ($ranges as $day => $range) {
+            $ranges[$day] = join(",", $range);
+        }
+
         return $ranges;
     }
 
@@ -555,6 +559,10 @@ class PropertyModifier extends PropertyModifierHook
 
             $currentDay = $currentDay < 6 ? $currentDay + 1: 0;
             $ranges[self::ICINGA_DAYS[$currentDay]][] = $this->renderRange(0, 0, 24 + $diff->h, $diff->i);
+
+            foreach ($ranges[self::ICINGA_DAYS[$currentDay]] as $ranges) {
+                $ranges[self::ICINGA_DAYS[$currentDay]] = join(",", $ranges);
+            }
         }
 
         return $ranges;
