@@ -2,18 +2,16 @@
 
 namespace Icinga\Module\Aws;
 
-use Aws\Common\Aws;
-use Aws\Common\Credentials\RefreshableInstanceProfileCredentials;
-use Aws\Common\Exception\InstanceProfileCredentialsException;
+use Aws\Sdk;
 use Icinga\Application\Config;
 
 class AwsClient
 {
     protected $key;
 
-    protected $client;
-
     protected $region;
+
+    protected $sdk;
 
     public function __construct(AwsKey $key = null, $region)
     {
@@ -25,7 +23,7 @@ class AwsClient
     public function getAutoscalingConfig()
     {
         $objects = array();
-        $client = $this->client()->get('AutoScaling');
+        $client = $this->sdk()->createAutoScaling();
         $res = $client->describeAutoScalingGroups();
 
         foreach ($res->get('AutoScalingGroups') as $entry) {
@@ -50,7 +48,7 @@ class AwsClient
 
     public function getLoadBalancers()
     {
-        $client = $this->client()->get('ElasticLoadBalancing');
+        $client = $this->sdk()->createElasticLoadBalancing();
         $res = $client->describeLoadBalancers();
         $objects = array();
         foreach ($res->get('LoadBalancerDescriptions') as $entry) {
@@ -83,7 +81,7 @@ class AwsClient
 
     public function getEc2Instances()
     {
-        $client = $this->client()->get('Ec2');
+        $client = $this->sdk()->createEc2();
         $res = $client->describeInstances();
         $objects = array();
         foreach ($res->get('Reservations') as $reservation) {
@@ -125,7 +123,7 @@ class AwsClient
 
     public function getRdsInstances()
     {
-        $client = $this->client()->get('Rds');
+        $client = $this->sdk()->createRds();
         $res = $client->describeDBInstances();
         $objects = array();
         foreach ($res['DBInstances'] as $entry) {
@@ -216,19 +214,20 @@ class AwsClient
         return strcmp($a->name, $b->name);
     }
 
-    protected function client()
+    protected function sdk()
     {
-        if ($this->client === null) {
-            $this->initializeClient();
+        if ($this->sdk === null) {
+            $this->initializeSdk();
         }
 
-        return $this->client;
+        return $this->sdk;
     }
 
-    protected function initializeClient()
+    protected function initializeSdk()
     {
         $params = array(
-            'region'  => $this->region
+            'version' => 'latest',
+            'region'  => $this->region,
         );
 
         if ($this->key instanceof AwsKey) {
@@ -246,12 +245,12 @@ class AwsClient
             $params['ssl.certificate_authority'] = $ca;
         }
 
-        $this->client = Aws::factory($params);
+        $this->sdk = new Sdk($params);
     }
 
     protected function prepareAwsLibs()
     {
-        if (class_exists('\Aws\Common\Aws')) {
+        if (class_exists('\Aws\Sdk')) {
             return;
         }
 
@@ -266,8 +265,8 @@ class AwsClient
             }
         }
 
-        if (! class_exists('\Aws\Common\Aws')) {
-            throw new \RuntimeException('AWS SDK not found (Class \Aws\Common\Aws not found)');
+        if (! class_exists('\Aws\Sdk')) {
+            throw new \RuntimeException('AWS SDK not found (Class \Aws\Sdk not found)');
         }
     }
 }
