@@ -247,14 +247,14 @@ class AwsClient
 
     public function getStacks()
     {
-        $client = $this->client()->get('Cloudformation');
+        $client = $this->sdk()->createCloudFormation();
         $res = $client->describeStacks();
         return $res['Stacks'];
     }
 
     public function getDynamoDb()
     {
-        return $this->client()->get('DynamoDb');
+        return $this->sdk()->createDynamoDb();
     }
 
     public static function enumRegions()
