@@ -39,7 +39,10 @@ class ImportSource extends ImportSourceHook
     {
         // Compat for old configs, asg used to be the only available type:
         $type = $this->getSetting('object_type', 'asg');
-        if (! in_array($type, array('asg', 'lb', 'ec2instance', 'rdsinstance'))) {
+
+        $validTypes = array_keys(static::enumObjectTypes());
+
+        if (! in_array($type, $validTypes)) {
             throw new ConfigurationError(
                 'Got no invalid AWS object type: "%s"',
                 $type
@@ -157,11 +160,17 @@ class ImportSource extends ImportSourceHook
 
     protected static function enumObjectTypes($form)
     {
-        return array(
-            'asg'         => $form->translate('Auto Scaling Groups'),
-            'lb'          => $form->translate('Elastic Load Balancers'),
-            'ec2instance' => $form->translate('EC2 Instances'),
-            'rdsinstance' => $form->translate('RDS Instances'),
-        );
+        static $enumerationTypes = null;
+
+        if ($enumerationTypes === null) {
+            $enumerationTypes = array(
+                'asg'         => $form->translate('Auto Scaling Groups'),
+                'lb'          => $form->translate('Elastic Load Balancers'),
+                'ec2instance' => $form->translate('EC2 Instances'),
+                'rdsinstance' => $form->translate('RDS Instances')
+            );
+        }
+
+        return $enumerationTypes;
     }
 }
