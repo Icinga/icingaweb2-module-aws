@@ -34,17 +34,18 @@ If you run Icinga Web on AWS you can use IAM roles to allow access. This is the
 default and there is nothing to configure. Select IAM role and configure access
 in AWS itself. 
 
+
 AWS key configuration
 ---------------------
 
 If you want to use access keys you need to have at least one key in `keys.ini`.
-Create a file `/etc/icingaweb2/modules/aws/keys.ini` as follows:
+The easiest way to do that, is by going to the key configuration tab in `Icinga Web 2` under `Configuration > Modules > aws > AWS Keys`:
 
-```ini
-[My readonly AWS key]
-access_key_id = RANDOMANFASDFNASDOFA
-secret_access_key = WhatASDmn0asdnfASNDInafsdofdasJ980hansdf
-```
+![AWS key config](img/10_aws_key_config.png)
+
+After that just click `Add a AWS Access Key`, choose a name and add your key details:
+
+![AWS add key](img/11_aws_add_key.png)
 
 That's it. Now you are ready to enable the AWS module and you'll find a new
 Import Source in your Icinga Director frontend. You are now ready to skip to

@@ -1,0 +1,23 @@
+<div class="controls">
+    <?= $tabs ?>
+</div>
+
+<div class="content" data-base-target="_next">
+    <div>
+        <h2><?= $this->translate('AWS Access Keys') ?></h2>
+        <?= $this->qlink(
+            $this->translate('Add a AWS Access Key') ,
+            'aws/config/createkey',
+            null,
+            array(
+                'class'   => 'button-link',
+                'icon'    => 'plus',
+                'title'   => $this->translate('Create a new AWS access key')
+            )
+        ) ?>
+        <?php
+        /** @var \Icinga\Module\Aws\Forms\Config\KeysListForm $form */
+        echo $form;
+        ?>
+    </div>
+</div>
