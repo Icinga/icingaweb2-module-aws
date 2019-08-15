@@ -141,17 +141,14 @@ class PropertyModifier extends PropertyModifierHook
             ]
         );
 
-        $chosenSolution = $form->getSentValue('aws_solution') ?: 'aws_instance_scheduler';
-        if ($chosenSolution === 'aws_instance_scheduler') {
-            $form->addElement(
-                'text',
-                'aws_instance_scheduler_table',
-                [
-                    'required'  => true,
-                    'label'     => 'Table Name'
-                ]
-            );
-        }
+        $form->addElement(
+            'text',
+            'aws_table_name',
+            [
+                'required'  => true,
+                'label'     => 'Table Name'
+            ]
+        );
 
         $form->addElement(
             'select',
@@ -171,38 +168,23 @@ class PropertyModifier extends PropertyModifierHook
 
     protected function Ec2SchedulerSettings()
     {
-        /*$stackName = $this->getRow()->stack_name;
-        if (isset($this->ec2SchedulerSettings[$stackName])) {
-            return $this->ec2SchedulerSettings[$stackName];
-        }
 
-        $stack = $this->client->getStacks()[$stackName];
+        $tableName = $this->getSetting('aws_table_name');
 
-        $ddTableName = null;
-        foreach ($stack['Outputs'] as $outputStructure) {
-            if ($outputStructure['OutputKey'] === 'DDBTableName') {
-                $ddTableName = $outputStructure['OutputValue'];
-                break;
-            }
-        }*/
-
-        $ddTableName = 'EC2-Scheduler';
-        $stackName = 'foo';
-
-        if (isset($this->ec2SchedulerSettings[$stackName])) {
-            return $this->ec2SchedulerSettings[$stackName];
+        if (isset($this->ec2SchedulerSettings)) {
+            return $this->ec2SchedulerSettings;
         }
 
         $dynamoDb = $this->Client()->getDynamoDb();
         $res = $dynamoDb->getItem([
-            'TableName' => $ddTableName,
+            'TableName' => $tableName,
             'Key'       => [
                 'SolutionName'  => ['S' => 'EC2Scheduler']
             ]
         ]);
 
-        $this->ec2SchedulerSettings[$stackName] = $res['Item'];
-        return $this->ec2SchedulerSettings[$stackName];
+        $this->ec2SchedulerSettings = $res['Item'];
+        return $this->ec2SchedulerSettings;
     }
 
     protected function InstanceSchedulerConfig()
@@ -211,7 +193,7 @@ class PropertyModifier extends PropertyModifierHook
             return $this->instanceSchedulerConfig;
         }
 
-        $tableName = $this->getSetting('aws_instance_scheduler_table');
+        $tableName = $this->getSetting('aws_table_name');
         $dynamoDb = $this->Client()->getDynamoDb();
 
         $res = $dynamoDb->getItem([
