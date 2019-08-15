@@ -12,6 +12,9 @@ class AwsClient
 
     protected $region;
 
+    /**
+     * @var Sdk
+     */
     protected $sdk;
 
     public function __construct(AwsKey $key = null, $region)
@@ -75,6 +78,30 @@ class AwsClient
                     )
                 );
             }
+        }
+
+        return $this->sortByName($objects);
+    }
+
+    public function getLoadBalancersV2()
+    {
+        $client = $this->sdk()->createElasticLoadBalancingV2();
+        $res = $client->describeLoadBalancers();
+        $objects = array();
+
+        foreach ($res['LoadBalancers'] as $entry) {
+            $objects[] = $object = $this->extractAttributes($entry, array(
+                'name'    => 'LoadBalancerName',
+                'dnsname' => 'DNSName',
+                'scheme'  => 'Scheme',
+                'zones'   => 'AvailabilityZones',
+                'type'    => 'Type',
+                'scheme'  => 'Scheme'
+            ), array(
+                'security_groups' => 'SecurityGroups'
+            ));
+
+            $object->state = $entry['State']['Code'];
         }
 
         return $this->sortByName($objects);
@@ -217,6 +244,9 @@ class AwsClient
         return strcmp($a->name, $b->name);
     }
 
+    /**
+     * @return Sdk
+     */
     protected function sdk()
     {
         if ($this->sdk === null) {

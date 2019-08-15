@@ -10,6 +10,14 @@ use Icinga\Application\Benchmark;
 
 class ImportSource extends ImportSourceHook
 {
+    protected static $awsObjectTypes = array(
+        'asg'         => 'Auto Scaling Groups',
+        'lb'          => 'Elastic Load Balancers',
+        'lbv2'        => 'Elastic Load Balancers V2',
+        'ec2instance' => 'EC2 Instances',
+        'rdsinstance' => 'RDS Instances'
+    );
+
     protected $db;
 
     public function fetchData()
@@ -28,6 +36,8 @@ class ImportSource extends ImportSourceHook
                 return $client->getAutoscalingConfig();
             case 'lb':
                 return $client->getLoadBalancers();
+            case 'lbv2':
+                return $client->getLoadBalancersV2();
             case 'ec2instance':
                 return $client->getEc2Instances();
             case 'rdsinstance':
@@ -39,7 +49,10 @@ class ImportSource extends ImportSourceHook
     {
         // Compat for old configs, asg used to be the only available type:
         $type = $this->getSetting('object_type', 'asg');
-        if (! in_array($type, array('asg', 'lb', 'ec2instance', 'rdsinstance'))) {
+
+        $validTypes = array_keys(static::$awsObjectTypes);
+
+        if (! in_array($type, $validTypes)) {
             throw new ConfigurationError(
                 'Got no invalid AWS object type: "%s"',
                 $type
@@ -77,6 +90,17 @@ class ImportSource extends ImportSourceHook
                     'zones',
                     'listeners',
                     'health_check',
+                );
+            case 'lbv2':
+                return array(
+                    'name',
+                    'dnsname',
+                    'scheme',
+                    'zones',
+                    'type',
+                    'scheme',
+                    'state',
+                    'security_groups'
                 );
             case 'rdsinstance':
                 return array(
@@ -157,13 +181,17 @@ class ImportSource extends ImportSourceHook
         ));
     }
 
-    protected static function enumObjectTypes($form)
+    protected static function enumObjectTypes(QuickForm $form)
     {
-        return array(
-            'asg'         => $form->translate('Auto Scaling Groups'),
-            'lb'          => $form->translate('Elastic Load Balancers'),
-            'ec2instance' => $form->translate('EC2 Instances'),
-            'rdsinstance' => $form->translate('RDS Instances'),
-        );
+        static $enumerationTypes = null;
+
+        if ($enumerationTypes === null) {
+            $enumerationTypes = array();
+            foreach (static::$awsObjectTypes as $key => $label) {
+                $enumerationTypes[$key] = $form->translate($label);
+            }
+        }
+
+        return $enumerationTypes;
     }
 }
