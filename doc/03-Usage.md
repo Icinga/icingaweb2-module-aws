@@ -74,12 +74,21 @@ will show you what related actions took place.
 You can import and create 
 [TimePeriod objects](https://icinga.com/docs/icinga2/latest/doc/09-object-types/#timeperiod) 
 via the [EC2 Scheduler](https://github.com/amazon-archives/ec2-scheduler). 
-Under your import sources list, add a property modifier:
+Under your import source, add a property modifier:
 
 ![AWS timeperiod import](img/12_aws_timeperiod_modifier.png)
 
-With the property `tags` you can use the modifier option `EC2 Scheduler tags to ranges`
-which will generate a TimePeriod object for further use:
+With the property `tags` you can use the modifier option `EC2 Scheduler tags to ranges`.
+With this, you can define a sync rule using a Time Period object type:
+
+![AWS timeperiod syncrule](img/14_aws_timeperiod_syncrule.png)
+
+This sync rule will need its own sync properties, which can be configured as follows:
+
+![AWS timeperiod_sync_properties](img/15_aws_timeperiod_syncproperties.png)
+
+Now just check for changes and trigger the sync rule and a TimePeriod object will be 
+automagically created.
 
 ![AWS timeperiod object](img/13_aws_timeperiod_object.png)
 
