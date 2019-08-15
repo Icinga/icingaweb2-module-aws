@@ -69,7 +69,26 @@ in a granular way:
 Now you are ready to trigger your first Sync Run. Activity Log and Sync History
 will show you what related actions took place.
 
-### Import TimePeriods from EC2 Scheduler
+### Have a look at your new hosts
+
+Let's have a look at our newly created host:
+
+![AWS host config](img/07_aws_host_config.png)
+
+In case you want to achieve visibilty for your imported Custom Vars please
+define related Fields directly on your AWS ASG Template. Your hosts could
+then look as follows:
+
+![AWS host vars](img/08_aws_host_config_with_vars.png)
+
+The preview tab shows our rendered host, this is how it will get deployed
+to Icinga:
+
+![AWS host preview](img/09_aws_host_preview.png)
+
+
+Import TimePeriods from EC2 Scheduler
+-------------------------------------
 
 You can import and create 
 [TimePeriod objects](https://icinga.com/docs/icinga2/latest/doc/09-object-types/#timeperiod) 
@@ -96,22 +115,5 @@ Using this object, you can schedule your checks and notifications.
 For further information concerning the usage, take a look at the 
 [Time Periods section](https://icinga.com/docs/icinga2/latest/doc/08-advanced-topics/#timeperiods) 
 in the Icinga 2 documentation.
-
-### Have a look at your new hosts
-
-Let's have a look at our newly created host:
-
-![AWS host config](img/07_aws_host_config.png)
-
-In case you want to achieve visibilty for your imported Custom Vars please
-define related Fields directly on your AWS ASG Template. Your hosts could
-then look as follows:
-
-![AWS host vars](img/08_aws_host_config_with_vars.png)
-
-The preview tab shows our rendered host, this is how it will get deployed
-to Icinga:
-
-![AWS host preview](img/09_aws_host_preview.png)
 
 That's all for now, have fun!
