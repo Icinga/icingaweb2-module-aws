@@ -2,6 +2,7 @@
 
 namespace Icinga\Module\Aws;
 
+use Aws\Api\DateTimeResult;
 use Aws\Sdk;
 use Icinga\Application\Config;
 
@@ -102,11 +103,13 @@ class AwsClient
                     'private_ip'       => 'PrivateIpAddress',
                     'private_dns'      => 'PrivateDnsName',
                     'instance_type'    => 'InstanceType',
+                    'subnet_id'        => 'SubnetId'
                 ));
 
                 $object->disabled         = $entry['State']['Name'] != 'running';
                 $object->monitoring_state = $entry['Monitoring']['State'];
                 $object->status           = $entry['State']['Name'];
+                $object->launch_time      = (string)$entry['LaunchTime'];
                 $object->security_groups  = [];
 
                 foreach ($entry['SecurityGroups'] as $group)
