@@ -547,6 +547,10 @@ class PropertyModifier extends PropertyModifierHook
             }
         }
 
+        foreach ($ranges as $day => $range) {
+            $ranges[$day] = join(",", $range);
+        }
+
         return $ranges;
     }
 
