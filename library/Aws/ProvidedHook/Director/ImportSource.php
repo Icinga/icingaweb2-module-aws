@@ -106,6 +106,8 @@ class ImportSource extends ImportSourceHook
                     'monitoring_state',
                     'security_groups',
                     'status',
+                    'subnet_id',
+                    'launch_time',
                     'tags',
                     'tags.Name',
                     'tags.aws:autoscaling:groupName',
