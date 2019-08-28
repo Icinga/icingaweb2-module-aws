@@ -1,5 +1,5 @@
 <a name="Installation-and-Configuration"></a>Installation
-============
+=========================================================
 
 Requirements
 ------------
@@ -39,7 +39,8 @@ AWS key configuration
 ---------------------
 
 If you want to use access keys you need to have at least one key in `keys.ini`.
-The easiest way to do that, is by going to the key configuration tab in `Icinga Web 2` under `Configuration > Modules > aws > AWS Keys`:
+The easiest way to do that, is by going to the key configuration tab in `Icinga Web 2` under
+`Configuration > Modules > aws > AWS Keys`:
 
 ![AWS key config](img/10_aws_key_config.png)
 
@@ -49,7 +50,7 @@ After that just click `Add a AWS Access Key`, choose a name and add your key det
 
 That's it. Now you are ready to enable the AWS module and you'll find a new
 Import Source in your Icinga Director frontend. You are now ready to skip to
-the [Usage](02-Usage.md) section.
+the [Usage](03-Usage.md) section.
 
 Proxy usage
 -----------
