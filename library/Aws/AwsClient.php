@@ -17,7 +17,7 @@ class AwsClient
      */
     protected $sdk;
 
-    public function __construct(AwsKey $key, $region)
+    public function __construct(AwsKey $key = null, $region)
     {
         $this->region = $region;
         $this->key = $key;
