@@ -12,11 +12,12 @@ use Icinga\Module\Aws\AwsKey;
 class ImportSource extends ImportSourceHook
 {
     protected static $awsObjectTypes = array(
-        'asg'         => 'Auto Scaling Groups',
-        'lb'          => 'Elastic Load Balancers',
-        'lbv2'        => 'Elastic Load Balancers V2',
-        'ec2instance' => 'EC2 Instances',
-        'rdsinstance' => 'RDS Instances'
+        'asg'            => 'Auto Scaling Groups',
+        'lb'             => 'Elastic Load Balancers',
+        'lbv2'           => 'Elastic Load Balancers V2',
+        'ec2instance'    => 'EC2 Instances',
+        'rdsinstance'    => 'RDS Instances',
+        'route53records' => 'Route53 Records'
     );
 
     protected $db;
@@ -47,6 +48,8 @@ class ImportSource extends ImportSourceHook
                 return $client->getEc2Instances();
             case 'rdsinstance':
                 return $client->getRdsInstances();
+            case 'route53records':
+                return $client->getRoute53Records();
         }
     }
 
@@ -144,6 +147,17 @@ class ImportSource extends ImportSourceHook
                     'tags.aws:cloudformation:stack-id',
                     'tags.aws:cloudformation:stack-name',
                 );
+            case 'route53records':
+                return [
+                    'name',
+                    'recordname',
+                    'type',
+                    'records',
+                    'ttl',
+                    'private_zone',
+                    'zone_name',
+                    'zone_id',
+                ];
         }
     }
 
