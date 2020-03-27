@@ -1,3 +1,4 @@
+Module: aws
 Name: AWS
 Version: 1.0.0
 Depends: monitoring
