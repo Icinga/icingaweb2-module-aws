@@ -28,7 +28,9 @@ class AwsClient
     {
         $objects = array();
         $client = $this->sdk()->createAutoScaling();
-        $res = $client->describeAutoScalingGroups();
+        $res = $client->describeAutoScalingGroups([
+            'MaxRecords' => 100
+        ]);
 
         foreach ($res->get('AutoScalingGroups') as $entry) {
 
