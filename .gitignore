@@ -1,2 +1,9 @@
-library/vendor/*
+# Exclude all hidden files
+.*
+
+# Except those related to Git (and GitHub)
+!.git*
+
+# Exclude files from composer install
+vendor/
 composer.lock
