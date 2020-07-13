@@ -3,7 +3,11 @@
 namespace Icinga\Module\Aws;
 
 use Aws\Api\DateTimeResult;
+use Aws\Credentials\AssumeRoleCredentialProvider;
+use Aws\Credentials\CredentialProvider;
+use Aws\Credentials\InstanceProfileProvider;
 use Aws\Sdk;
+use Aws\Sts\StsClient;
 use Icinga\Application\Config;
 
 class AwsClient
@@ -17,7 +21,7 @@ class AwsClient
      */
     protected $sdk;
 
-    public function __construct(AwsKey $key = null, $region)
+    public function __construct($key = null, $region)
     {
         $this->region = $region;
         $this->key = $key;
@@ -272,6 +276,14 @@ class AwsClient
 
         if ($this->key instanceof AwsKey) {
             $params['credentials'] = $this->key->getCredentials();
+        } else if ($this->key instanceof AssumeRole) {
+            $assumeRoleCredentials = new AssumeRoleCredentialProvider([
+                'client' => new StsClient($params + [
+                    'credentials' => new InstanceProfileProvider()
+                ]),
+                'assume_role_params' => $this->key->getParams()
+            ]);
+            $params['credentials'] = CredentialProvider::memoize($assumeRoleCredentials);
         }
 
         $config = Config::module('aws');

@@ -2,6 +2,8 @@
 
 namespace Icinga\Module\Aws\ProvidedHook\Director;
 
+use Icinga\Module\Aws\AssumeRole;
+use Icinga\Module\Director\Forms\ImportSourceForm;
 use Icinga\Module\Director\Hook\ImportSourceHook;
 use Icinga\Module\Director\Web\Form\QuickForm;
 use Icinga\Module\Aws\AwsClient;
@@ -25,7 +27,11 @@ class ImportSource extends ImportSourceHook
         $key = null;
 
         if ($keyName) {
-            $key = AwsKey::loadByName($keyName);
+            if ($keyName === 'IAM assume role') {
+                $key = AssumeRole::create($this->getSetting('iam_assume_role'), 'director');
+            } else {
+                $key = AwsKey::loadByName($keyName);
+            }
         }
 
         $client = new AwsClient($key, $this->getSetting('aws_region'));
@@ -158,14 +164,26 @@ class ImportSource extends ImportSourceHook
             'label'        => 'AWS access method',
             'required'     => false,
             'description'  => $form->translate(
-                'Use IAM role credential or select your AWS key. This shows all keys from your keys.ini.'
+                'Use IAM role credential, assume role or select your AWS key.'
+                . ' This shows all keys from your keys.ini.'
                 . ' Please check the documentation if you miss the keys in the list.'
             ),
-            'multiOptions' => $form->optionalEnum(AwsKey::enumKeyNames(), $form->translate(
+            'multiOptions' => $form->optionalEnum(
+                AwsKey::enumKeyNames()
+                    + ['IAM assume role' => $form->translate('IAM assume role')],
+                $form->translate(
                 'IAM role credentials'
             )),
             'class'        => 'autosubmit',
         ));
+
+        /** @var ImportSourceForm $form */
+        if ($form->getSentOrObjectSetting('aws_access_key') === 'IAM assume role') {
+            $form->addElement('text', 'iam_assume_role', [
+                'label'    => 'Assume role',
+                'required' => true
+            ]);
+        }
 
         $form->addElement('select', 'object_type', array(
             'label'        => 'Object type',
