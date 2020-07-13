@@ -34,13 +34,18 @@ class AwsClient
 
         foreach ($res->get('AutoScalingGroups') as $entry) {
 
-            $objects[] = $object = $this->extractAttributes($entry, array(
-                'name'              => 'AutoScalingGroupName',
-                'launch_config'     => 'LaunchConfigurationName',
-                'zones'             => 'AvailabilityZones',
-                'lb_names'          => 'LoadBalancerNames',
-                'health_check_type' => 'HealthCheckType',
-            ));
+            $objects[] = $object = $this->extractAttributes(
+                $entry,
+                [
+                    'name'              => 'AutoScalingGroupName',
+                    'zones'             => 'AvailabilityZones',
+                    'lb_names'          => 'LoadBalancerNames',
+                    'health_check_type' => 'HealthCheckType',
+                ],
+                [
+                    'launch_config' => 'LaunchConfigurationName'
+                ]
+            );
 
             $object->ctime        = strtotime($entry['CreatedTime']);
             $object->desired_size = (int) $entry['DesiredCapacity'];
