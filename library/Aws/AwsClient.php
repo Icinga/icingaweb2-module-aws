@@ -109,7 +109,8 @@ class AwsClient
                 'type'    => 'Type',
                 'scheme'  => 'Scheme'
             ), array(
-                'security_groups' => 'SecurityGroups'
+                'security_groups' => 'SecurityGroups',
+                'arn'             => 'LoadBalancerArn'
             ));
 
             $object->state = $entry['State']['Code'];
