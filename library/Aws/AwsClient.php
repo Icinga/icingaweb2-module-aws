@@ -189,6 +189,52 @@ class AwsClient
         return $this->sortByName($objects);
     }
 
+    public function getRoute53Records()
+    {
+        $client = $this->sdk()->createRoute53();
+        $zonesPaginator = $client->getPaginator('ListHostedZones', [
+            'MaxItems' => '100'
+        ]);
+        $objects = [];
+        foreach ($zonesPaginator as $zonesRs) {
+            foreach ($zonesRs['HostedZones'] as $zone) {
+                $resourcesPaginator = $client->getPaginator('ListResourceRecordSets', [
+                    'MaxItems'     => '100',
+                    'HostedZoneId' => $zone['Id']
+                ]);
+                foreach ($resourcesPaginator as $resourceRs) {
+                    foreach ($resourceRs['ResourceRecordSets'] as $recordset) {
+                        $objects[] = $object = $this->extractAttributes($recordset, array(
+                            'recordname' => 'Name',
+                            'type'       => 'Type'
+                        ));
+                        // 'Name' is not necessarily unique so we have to create a unique one
+                        if (array_key_exists('Weight', $recordset)) {
+                            $object->name = "{$recordset["Type"]}_{$recordset["Weight"]}_{$recordset["Name"]}";
+                        }
+                        else {
+                            $object->name = "{$recordset["Type"]}_{$recordset["Name"]}";
+                        }
+
+                        $object->private_zone = $zone['Config']['PrivateZone'];
+                        $object->zone_name = $zone['Name'];
+                        $object->zone_id = $zone['Id'];
+                        if (array_key_exists('ResourceRecords', $recordset)) {
+                            $object->records = $recordset['ResourceRecords'];
+                        }
+                        if (array_key_exists('TTL', $recordset)) {
+                            $object->ttl = $recordset['TTL'];
+                        }
+                    }
+                    // One would assume that the AWS paginators handle throttling, but they don't. Throttle to 4 req/s
+                    usleep(250000);
+                }
+            }
+        }
+
+        return $this->sortByName($objects);
+    }
+
     public static function enumRegions()
     {
         return array(
