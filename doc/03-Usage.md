@@ -67,7 +67,7 @@ in a granular way:
 ![AWS sync properties](img/06_aws_sync_properties.png)
 
 Now you are ready to trigger your first Sync Run. Activity Log and Sync History
-will show you what related actions took place
+will show you what related actions took place.
 
 ### Have a look at your new hosts
 
@@ -85,5 +85,35 @@ The preview tab shows our rendered host, this is how it will get deployed
 to Icinga:
 
 ![AWS host preview](img/09_aws_host_preview.png)
+
+
+Import TimePeriods from EC2 Scheduler
+-------------------------------------
+
+You can import and create 
+[TimePeriod objects](https://icinga.com/docs/icinga2/latest/doc/09-object-types/#timeperiod) 
+via the [EC2 Scheduler](https://github.com/amazon-archives/ec2-scheduler). 
+Under your import source, add a property modifier:
+
+![AWS timeperiod import](img/12_aws_timeperiod_modifier.png)
+
+With the property `tags` you can use the modifier option `EC2 Scheduler tags to ranges`.
+With this, you can define a sync rule using a Time Period object type:
+
+![AWS timeperiod syncrule](img/14_aws_timeperiod_syncrule.png)
+
+This sync rule will need its own sync properties, which can be configured as follows:
+
+![AWS timeperiod_sync_properties](img/15_aws_timeperiod_syncproperties.png)
+
+Now just check for changes and trigger the sync rule and a TimePeriod object will be 
+automagically created.
+
+![AWS timeperiod object](img/13_aws_timeperiod_object.png)
+
+Using this object, you can schedule your checks and notifications.
+For further information concerning the usage, take a look at the 
+[Time Periods section](https://icinga.com/docs/icinga2/latest/doc/08-advanced-topics/#timeperiods) 
+in the Icinga 2 documentation.
 
 That's all for now, have fun!
