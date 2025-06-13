@@ -236,6 +236,18 @@ class AwsClient
         return $this->sortByName($objects);
     }
 
+    public function getStacks()
+    {
+        $client = $this->sdk()->createCloudFormation();
+        $res = $client->describeStacks();
+        return $res['Stacks'];
+    }
+
+    public function getDynamoDb()
+    {
+        return $this->sdk()->createDynamoDb();
+    }
+
     public static function enumRegions()
     {
         return array(
