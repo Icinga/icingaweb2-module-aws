@@ -21,7 +21,7 @@ class AwsClient
      */
     protected $sdk;
 
-    public function __construct($key = null, $region)
+    public function __construct($region, $key = null)
     {
         $this->region = $region;
         $this->key = $key;

@@ -35,7 +35,7 @@ class ImportSource extends ImportSourceHook
             }
         }
 
-        $client = new AwsClient($key, $this->getSetting('aws_region'));
+        $client = new AwsClient($this->getSetting('aws_region'), $key);
 
         switch ($this->getObjectType()) {
             case 'asg':
