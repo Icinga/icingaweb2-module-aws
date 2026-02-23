@@ -25,7 +25,6 @@ class AwsClient
     {
         $this->region = $region;
         $this->key = $key;
-        $this->prepareAwsLibs();
     }
 
     public function getAutoscalingConfig()
@@ -355,27 +354,5 @@ class AwsClient
         }
 
         $this->sdk = new Sdk($params);
-    }
-
-    protected function prepareAwsLibs()
-    {
-        if (class_exists('\Aws\Sdk')) {
-            return;
-        }
-
-        $autoloaderFiles = array(
-            dirname(__DIR__) . '/vendor/aws/aws-autoloader.php', // manual sdk installation
-            dirname(__DIR__) . '/vendor/autoload.php',           // composer installation
-        );
-
-        foreach ($autoloaderFiles as $file) {
-            if (file_exists($file)) {
-                require_once $file;
-            }
-        }
-
-        if (! class_exists('\Aws\Sdk')) {
-            throw new \RuntimeException('AWS SDK not found (Class \Aws\Sdk not found)');
-        }
     }
 }
