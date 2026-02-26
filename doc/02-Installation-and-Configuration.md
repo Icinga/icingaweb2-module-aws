@@ -19,13 +19,7 @@ Install AWS SDK
 #### Via Composer
 
 For this you need [Composer](https://getcomposer.org/) on your machine. 
-In `/icingaweb2/modules/aws`, run `composer install` and all modules dependencies will be installed. 
-
-#### Manual Install
-
-Next please download and extract the latest v3 standalone ZIP archive from
-the AWS PHP SDK [releases](https://github.com/aws/aws-sdk-php/releases) page.
-You need to extract the AWS PHP SDK v3 to `library/vendor/aws`.
+In `/icingaweb2/modules/aws`, run `composer install` and all modules dependencies will be installed.
 
 AWS IAM role credentials
 ------------------------
