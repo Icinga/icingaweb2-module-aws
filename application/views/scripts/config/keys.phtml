@@ -4,7 +4,7 @@
 
 <div class="content" data-base-target="_next">
     <div>
-        <h2><?= $this->translate('AWS Access Keys') ?></h2>
+        <h2><?= $this->escape($this->translate('AWS Access Keys')) ?></h2>
         <?= $this->qlink(
             $this->translate('Add a AWS Access Key') ,
             'aws/config/createkey',

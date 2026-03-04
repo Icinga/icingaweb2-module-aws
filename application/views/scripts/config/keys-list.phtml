@@ -3,20 +3,20 @@
 /** @var \Icinga\Module\Aws\Forms\Config\KeysListForm $form */
 ?>
 <form id="<?=
-$form->getId()
+$this->escape($form->getId())
 ?>" name="<?=
-$form->getName()
+$this->escape($form->getName())
 ?>" enctype="<?=
-$form->getEncType()
+$this->escape($form->getEncType())
 ?>" method="<?=
-$form->getMethod()
+$this->escape($form->getMethod())
 ?>" action="<?=
-$form->getAction()
+$this->escape($form->getAction())
 ?>">
     <table class="table-row-selectable common-table" data-base-target="_next">
         <thead>
         <tr>
-            <th><?= $this->translate('Keys') ?></th>
+            <th><?= $this->escape($this->translate('Keys')) ?></th>
             <th></th>
             <th></th>
         </tr>
@@ -34,7 +34,7 @@ $form->getAction()
                         array('key' => $keyName),
                         array(
                             'icon'  => 'edit',
-                            'title' => sprintf($this->translate('Edit key %s'), $keyName)
+                            'title' => sprintf($this->escape($this->translate('Edit key %s')), $keyName)
                         )
                     ); ?>
                 </td>
@@ -46,7 +46,7 @@ $form->getAction()
                         array(
                             'class' => 'action-link',
                             'icon'  => 'cancel',
-                            'title' => sprintf($this->translate('Remove key %s'), $keyName)
+                            'title' => sprintf($this->escape($this->translate('Remove key %s')), $keyName)
                         )
                     ); ?>
                 </td>
