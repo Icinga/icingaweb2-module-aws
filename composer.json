@@ -1,11 +1,13 @@
 {
-    "name": "icinga/icingaweb2-module-aws",
-    "config": {
-        "vendor-dir": "library/vendor"
-    },
-    "repositories": [
-    ],
-    "require": {
-        "aws/aws-sdk-php": "3.*"
+  "name": "icinga/icingaweb2-module-aws",
+  "config": {
+    "sort-packages": true,
+    "platform": {
+      "php": "8.2"
     }
+  },
+  "require": {
+    "php": ">=8.2",
+    "aws/aws-sdk-php": "^3.371"
+  }
 }
